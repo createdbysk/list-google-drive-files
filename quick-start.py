@@ -17,7 +17,7 @@ except ImportError:
 # at ~/.credentials/drive-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Drive API Python Quickstart'
+APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
 FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
