@@ -182,10 +182,11 @@ def possible_wasted_quota_bytes_used(duplicates):
 
 
 def main():
-    """Shows basic usage of the Google Drive API.
+    """Finds duplicates between 2 accounts. Can be extended to any number of accounts.
 
-    Creates a Google Drive API service object and outputs the names and IDs
-    for up to 10 files.
+    Creates a Google Drive API service object, lists all the files within the
+    authorized accounts, and determines duplicates based on file name within and
+    between the accounts.
     """
     import json
     duplicates = find_duplicates([1, 2])
