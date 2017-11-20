@@ -16,12 +16,13 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/drive-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = '.credentials/client_secret.json'
 APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
 FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
-
+SERVICE_ACCOUNT_EMAIL = "816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com"
+KEYFILE_PATH = ".credentials/keyfile.p12"
 
 def get_credentials(suffix):
     """Gets valid user credentials from storage.
@@ -180,6 +181,13 @@ def possible_wasted_quota_bytes_used(duplicates):
 
     return wasted_quota_bytes_used
 
+def service_account_credentials_factory():
+    import oauth2client.service_account
+
+    return oauth2client.service_account.ServiceAccountCredentials.from_p12_keyfile(
+        SERVICE_ACCOUNT_EMAIL,
+        KEYFILE_PATH
+    )
 
 def main():
     """Finds duplicates between 2 accounts. Can be extended to any number of accounts.
@@ -193,6 +201,8 @@ def main():
     print(json.dumps(duplicates, indent=4))
     print(json.dumps(possible_wasted_quota_bytes_used(duplicates), indent=4))
 
+    service_account_credentials = service_account_credentials_factory()
+    print(service_account_credentials)
 
 if __name__ == '__main__':
     main()
