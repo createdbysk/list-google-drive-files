@@ -14,12 +14,12 @@ Determines the amount of possible wasted quota bytes used due to the duplicates.
   account key.
     * Choose the file-manager project
     * Choose the file-manager-application service account
-    * Download the file in P12 format.
+    * Download the file in json format.
     * Assume the file is downloaded to ```/path/to/file-manager-1234.json```
 * Move the downloaded files into the location expected by the application
     cd /path/that/contains/thisREADME.md/
     mkdir -p .credentials
     mv /path/to/client_secret_816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com.json .credentials
     ln -s .credentials/client_secret_816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com.json .credentials/client_secret.json
-    mv /path/to/file-manager-1234.p12 .credentials
-    ln -s .credentials/file-manager-1234.p12 .credentials/keyfile.p12 
+    mv /path/to/file-manager-1234.json .credentials
+    ln -s .credentials/file-manager-1234.json .credentials/keyfile.json 

@@ -21,8 +21,8 @@ APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
 FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
-SERVICE_ACCOUNT_EMAIL = "816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com"
-KEYFILE_PATH = ".credentials/keyfile.p12"
+SERVICE_ACCOUNT_SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
+KEYFILE_PATH = ".credentials/keyfile.json"
 
 def get_credentials(suffix):
     """Gets valid user credentials from storage.
@@ -184,9 +184,9 @@ def possible_wasted_quota_bytes_used(duplicates):
 def service_account_credentials_factory():
     import oauth2client.service_account
 
-    return oauth2client.service_account.ServiceAccountCredentials.from_p12_keyfile(
-        SERVICE_ACCOUNT_EMAIL,
-        KEYFILE_PATH
+    return oauth2client.service_account.ServiceAccountCredentials.from_json_keyfile_name(
+        KEYFILE_PATH,
+        SERVICE_ACCOUNT_SCOPES
     )
 
 def main():
@@ -201,8 +201,26 @@ def main():
     print(json.dumps(duplicates, indent=4))
     print(json.dumps(possible_wasted_quota_bytes_used(duplicates), indent=4))
 
-    service_account_credentials = service_account_credentials_factory()
-    print(service_account_credentials)
+    credentials = service_account_credentials_factory()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+
+    spreadsheetId = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
+    rangeName = 'Class Data!A2:E'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+
+    if not values:
+        print('No data found.')
+    else:
+        print('Name, Major:')
+        for row in values:
+            # Print columns A and E, which correspond to indices 0 and 4.
+            print('%s, %s' % (row[0], row[4]))
 
 
 if __name__ == '__main__':
