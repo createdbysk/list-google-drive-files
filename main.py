@@ -21,8 +21,6 @@ APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
 FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
-SERVICE_ACCOUNT_SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-KEYFILE_PATH = ".credentials/keyfile.json"
 
 def get_credentials(suffix):
     """Gets valid user credentials from storage.
@@ -124,7 +122,7 @@ def get_item_list(suffix):
     return item_list
 
 
-def find_duplicates(suffixes):
+def find_duplicates(object_store_instance):
     """
     Algorithm:
         If an item is not already seen,
@@ -137,24 +135,28 @@ def find_duplicates(suffixes):
     :param suffix2: 
     :return: 
     """
-    def build(item_list, suffix):
-        for item in item_list:
-            name = item['name']
-            if name in already_seen:
-                if name not in duplicates:
-                    duplicates[name] = [already_seen[name]]
-                duplicates[name].append((suffix, item))
-            else:
-                already_seen[name] = (suffix, item)
-
-    # Now extract the duplicates by name
-    already_seen = {}
     duplicates = {}
-    for suffix in suffixes:
-        item_list = get_item_list(suffix)
-        build(item_list, suffix)
+    for name in object_store_instance:
+        object_list = object_store_instance.find_object(name)
+        if len(object_list) > 1:
+            duplicates[name] = object_list
 
     return duplicates
+
+
+def object_store_factory():
+    import object_store
+    object_store_instance = object_store.ObjectStore()
+    return object_store_instance
+
+
+def add_items_to_object_store(object_store_instance, suffix):
+    item_list = get_item_list(suffix)
+    for item in item_list:
+        name = item['name']
+        object_store_instance.add_object(name, item, suffix)
+
+    return object_store_instance
 
 
 def possible_wasted_quota_bytes_used(duplicates):
@@ -181,46 +183,19 @@ def possible_wasted_quota_bytes_used(duplicates):
 
     return wasted_quota_bytes_used
 
-def service_account_credentials_factory():
-    import oauth2client.service_account
-
-    return oauth2client.service_account.ServiceAccountCredentials.from_json_keyfile_name(
-        KEYFILE_PATH,
-        SERVICE_ACCOUNT_SCOPES
-    )
 
 def main():
-    """Finds duplicates between 2 accounts. Can be extended to any number of accounts.
-
-    Creates a Google Drive API service object, lists all the files within the
-    authorized accounts, and determines duplicates based on file name within and
-    between the accounts.
+    """
+    Locates an object in the given google drive accounts
     """
     import json
-    duplicates = find_duplicates([1, 2])
+    object_store_instance = object_store_factory()
+    add_items_to_object_store(object_store_instance, 1)
+    add_items_to_object_store(object_store_instance, 2)
+
+    duplicates = find_duplicates(object_store_instance)
     print(json.dumps(duplicates, indent=4))
     print(json.dumps(possible_wasted_quota_bytes_used(duplicates), indent=4))
-
-    credentials = service_account_credentials_factory()
-    http = credentials.authorize(httplib2.Http())
-    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
-                    'version=v4')
-    service = discovery.build('sheets', 'v4', http=http,
-                              discoveryServiceUrl=discoveryUrl)
-
-    spreadsheetId = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-    rangeName = 'Class Data!A2:E'
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
-    values = result.get('values', [])
-
-    if not values:
-        print('No data found.')
-    else:
-        print('Name, Major:')
-        for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%s, %s' % (row[0], row[4]))
 
 
 if __name__ == '__main__':
