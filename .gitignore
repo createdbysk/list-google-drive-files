@@ -1,3 +1,4 @@
 env/
 .idea/
+.credentials/
 client_secret*

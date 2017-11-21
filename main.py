@@ -16,12 +16,11 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/drive-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = '.credentials/client_secret.json'
 APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
 FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
-
 
 def get_credentials(suffix):
     """Gets valid user credentials from storage.
@@ -122,37 +121,28 @@ def get_item_list(suffix):
     return item_list
 
 
-def find_duplicates(suffixes):
+def find_duplicates(object_store_instance):
     """
-    Algorithm:
-        If an item is not already seen,
-            add it to already seen along with the suffix in which it is seen.
-        If an item is already seen
-            if duplicates does not have the item,
-                add the information stored in already seen
-            add the current item along with the suffix in which it is seen.
-    :param suffix1: 
-    :param suffix2: 
-    :return: 
+    If there are multiple instances of an object, then there are duplicates.
+    :param object_store_instance: The instance of the object store.
+    :return: A dictionary of duplicate information
     """
-    def build(item_list, suffix):
-        for item in item_list:
-            name = item['name']
-            if name in already_seen:
-                if name not in duplicates:
-                    duplicates[name] = [already_seen[name]]
-                duplicates[name].append((suffix, item))
-            else:
-                already_seen[name] = (suffix, item)
-
-    # Now extract the duplicates by name
-    already_seen = {}
     duplicates = {}
-    for suffix in suffixes:
-        item_list = get_item_list(suffix)
-        build(item_list, suffix)
+    for name in object_store_instance:
+        object_list = object_store_instance.find_object(name)
+        if len(object_list) > 1:
+            duplicates[name] = object_list
 
     return duplicates
+
+
+def add_items_to_object_store(object_store_instance, suffix):
+    item_list = get_item_list(suffix)
+    for item in item_list:
+        name = item['name']
+        object_store_instance.add_object(name, item, suffix)
+
+    return object_store_instance
 
 
 def possible_wasted_quota_bytes_used(duplicates):
@@ -181,14 +171,16 @@ def possible_wasted_quota_bytes_used(duplicates):
 
 
 def main():
-    """Finds duplicates between 2 accounts. Can be extended to any number of accounts.
-
-    Creates a Google Drive API service object, lists all the files within the
-    authorized accounts, and determines duplicates based on file name within and
-    between the accounts.
+    """
+    Locates an object in the given google drive accounts
     """
     import json
-    duplicates = find_duplicates([1, 2])
+    import object_store
+    object_store_instance = object_store.ObjectStore.create()
+    add_items_to_object_store(object_store_instance, 1)
+    add_items_to_object_store(object_store_instance, 2)
+
+    duplicates = find_duplicates(object_store_instance)
     print(json.dumps(duplicates, indent=4))
     print(json.dumps(possible_wasted_quota_bytes_used(duplicates), indent=4))
 
