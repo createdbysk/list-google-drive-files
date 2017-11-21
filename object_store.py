@@ -2,6 +2,10 @@ class ObjectStore(object):
     def __init__(self):
         self.store = {}
 
+    @classmethod
+    def create(cls):
+        return cls()
+
     def add_object(self, name, object, account):
         if name not in self.store:
             self.store[name] = []

@@ -124,16 +124,9 @@ def get_item_list(suffix):
 
 def find_duplicates(object_store_instance):
     """
-    Algorithm:
-        If an item is not already seen,
-            add it to already seen along with the suffix in which it is seen.
-        If an item is already seen
-            if duplicates does not have the item,
-                add the information stored in already seen
-            add the current item along with the suffix in which it is seen.
-    :param suffix1: 
-    :param suffix2: 
-    :return: 
+    If there are multiple instances of an object, then there are duplicates.
+    :param object_store_instance: The instance of the object store.
+    :return: A dictionary of duplicate information
     """
     duplicates = {}
     for name in object_store_instance:
@@ -142,12 +135,6 @@ def find_duplicates(object_store_instance):
             duplicates[name] = object_list
 
     return duplicates
-
-
-def object_store_factory():
-    import object_store
-    object_store_instance = object_store.ObjectStore()
-    return object_store_instance
 
 
 def add_items_to_object_store(object_store_instance, suffix):
@@ -189,7 +176,8 @@ def main():
     Locates an object in the given google drive accounts
     """
     import json
-    object_store_instance = object_store_factory()
+    import object_store
+    object_store_instance = object_store.ObjectStore.create()
     add_items_to_object_store(object_store_instance, 1)
     add_items_to_object_store(object_store_instance, 2)
 
