@@ -56,7 +56,6 @@ def get_total_quota_bytes_used(suffix):
     credentials = get_credentials(suffix)
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v3', http=http)
-    pageToken = None
     totalQuotaBytesUsed = 0L
 
     about_results = service.about().get(fields="user, storageQuota").execute()

@@ -1,4 +1,4 @@
 env/
 .idea/
 .credentials/
-client_secret.json
+client_secret*
