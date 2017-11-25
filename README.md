@@ -22,4 +22,32 @@ Determines the amount of possible wasted quota bytes used due to the duplicates.
     mv /path/to/client_secret_816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com.json .credentials
     ln -s .credentials/client_secret_816614257662-dacf8kk6pcve3jv0laitst90le1pmako.apps.googleusercontent.com.json .credentials/client_secret.json
     mv /path/to/file-manager-1234.json .credentials
-    ln -s .credentials/file-manager-1234.json .credentials/keyfile.json 
+    ln -s .credentials/file-manager-1234.json .credentials/keyfile.json
+
+# Local Development
+## Bash on ubuntu on windows 10
+* Setup bash on ubuntu on windows 10 to run graphical applications
+    * https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
+## Pycharm
+* Follow instructions at https://itsfoss.com/install-pycharm-ubuntu/
+    * Install the community edition.
+## Firefox
+* Install Firefox
+    sudo apt-get install firefox
+## Run web server
+### One time setup
+Install the twisted daemon (twistd)
+    sudo apt-get install python-twisted-core
+
+### Start the server
+    twistd web --wsgi web_app.app --port tcp:8081
+
+### Access the web server
+Navigate to http://localhost:8081
+
+# Auth flows
+Auth flows are based on the documentation linked below
+## Login
+* http://oauth2client.readthedocs.io/en/latest/_modules/oauth2client/contrib/flask_util.html
+## Add accounts to manage files from
+* https://developers.google.com/api-client-library/python/guide/aaa_oauth
