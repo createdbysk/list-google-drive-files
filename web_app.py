@@ -29,7 +29,7 @@ def login():
 
 @app.route("/logout")
 def logout():
-    flask.session.pop("session_id", None)
+    session.Session.logout()
     return flask.redirect(flask.url_for("index"))
 
 @app.route("/google/oauth")

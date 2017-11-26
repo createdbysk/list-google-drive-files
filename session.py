@@ -1,13 +1,11 @@
 import flask
 
 class Session(object):
-    __SESSIONS = {
-        "login": {},
-        "accounts": {}
-    }
+    __SESSIONS = {}
     __CSRF_KEY = "google_auth_csrf_token"
     def __init__(self, credentials):
         self.credentials = credentials
+        self.accounts = {}
 
     @classmethod
     def is_user_logged_in(cls):
@@ -17,6 +15,10 @@ class Session(object):
                 return True
 
         return False
+
+    @classmethod
+    def logout(cls):
+        flask.session.pop("login_session_id", None)
 
     @classmethod
     def start_login_flow(cls):
@@ -36,12 +38,12 @@ class Session(object):
         if "login_flow" in flask.session:
             flask.session["login_session_id"] = guid
             flask.session.pop("login_flow", None)
-            cls.__SESSIONS["login"][guid] = session
+            cls.__SESSIONS[guid] = session
             return "login_flow"
         elif "account_flow" in flask.session:
-            flask.session["account_session_id"] = guid
             flask.session.pop("account_flow", None)
-            cls.__SESSIONS["accounts"][guid] = session
+            login_session_id = flask.session["login_session_id"]
+            cls.__SESSIONS[login_session_id].accounts[guid] = session
             return "account_flow"
         return None
 
@@ -49,14 +51,15 @@ class Session(object):
     def get_login_credentials(cls):
         if "login_session_id" in flask.session:
             guid = flask.session["login_session_id"]
-            credentials = cls.__SESSIONS["login"][guid].credentials
+            credentials = cls.__SESSIONS[guid].credentials
             return credentials
         else:
             return None
 
     @classmethod
     def get_account_credentials(cls):
-        for guid, session in cls.__SESSIONS["accounts"].iteritems():
+        login_session_id = flask.session["login_session_id"]
+        for guid, session in cls.__SESSIONS[login_session_id].accounts.iteritems():
             yield session.credentials
 
     @classmethod
