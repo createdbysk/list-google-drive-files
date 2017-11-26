@@ -18,10 +18,10 @@ app.config['GOOGLE_OAUTH2_SCOPES'] = ['profile', 'email']
 @app.route("/")
 def index():
     if session.Session.is_user_logged_in():
-        credentials = session.Session.get_credentials()
-        return _display_user_info(credentials)
+        return _display_info()
     else:
-       return flask.redirect(flask.url_for("login"))
+        session.Session.start_login_flow()
+        return flask.redirect(flask.url_for("login"))
 
 @app.route("/login")
 def login():
@@ -48,13 +48,11 @@ def google_auth_return():
         flow = flow_factory.FlowFactory.get_flow()
         credentials = flow.step2_exchange(code)
         session.Session.store_credentials(credentials)
-        return _display_user_info(credentials)
+        return _display_info()
     else:
         return flask.redirect(flask.url_for("index"), code=302)
 
-def _display_user_info(credentials):
-    # Create an httplib2.Http object to handle our HTTP requests and
-    # authorize it with our good Credentials.
+def _get_profile(credentials):
     http = httplib2.Http()
     http = credentials.authorize(http)
 
@@ -64,13 +62,26 @@ def _display_user_info(credentials):
                                           personFields='names,emailAddresses').execute()
     user = {
         "name": profile["names"][0]["displayName"],
-        "email": profile["emailAddresses"][0]["value"]
+        "email": profile["emailAddresses"][0]["value"],
+        "id": profile["names"][0]["metadata"]["source"]["id"]
     }
-    return flask.render_template("add_accounts.html", user=user)
+
+    return user
+
+def _display_info():
+    # Create an httplib2.Http object to handle our HTTP requests and
+    # authorize it with our good Credentials.
+    login_credentials = session.Session.get_login_credentials()
+    user = _get_profile(login_credentials)
+    accounts = [_get_profile(credentials)
+                for credentials in session.Session.get_account_credentials()]
+
+    return flask.render_template("add_accounts.html", user=user, accounts=accounts)
 
 
 @app.route('/add_account')
 def add_account():
+    session.Session.start_account_flow()
     return flask.redirect(flask.url_for("google_oauth"), code=302)
 
 

@@ -16,6 +16,11 @@
         <p>{{user.name}} ({{user.email}})</p>
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
+    {% for account in accounts %}
+    <div>
+        <p>{{account.name}} ({{account.email}})</p>
+    </div>
+    {% endfor %}
     <a href="{{ url_for('add_account') }}">Add Account</a>
   </body>
 </html>
