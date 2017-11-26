@@ -31,8 +31,6 @@ def get_credentials(suffix):
     Returns:
         Credentials, the obtained credential.
     """
-    from oauth2client.client import OAuth2WebServerFlow
-
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):

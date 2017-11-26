@@ -1,3 +1,20 @@
+// Login
+$(document).ready(function () {
+    $("#google-oauth-button").click(function () {
+      var parser = document.createElement('a');
+      parser.href = window.location;
+      // getGoogleOauthUrl() is defined in index.html
+      window.location.replace(getGoogleOauthUrl())
+    })
+})
+
+function logout() {
+  var parser = document.createElement('a');
+  parser.href = window.location;
+  // getGoogleLogoutUrl() is defined in index.html
+  window.location.replace(getGoogleLogoutUrl())
+}
+
 function handleClientLoad() {
     // Loads the client library and the auth2 library together for efficiency.
     // Loading the auth2 library is optional here since `gapi.client.init` function will load

@@ -1,13 +1,23 @@
 <html lang="en">
   <body>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+      crossorigin="anonymous">
+    </script>
     <link rel="stylesheet" href="/static/google.css">
+    <script>
+        function getGoogleOauthUrl() {
+            return "{{ url_for('google_oauth') }}";
+        };
+    </script>
     <script src="/static/auth.js"></script>
-    <script async defer src="https://apis.google.com/js/api.js"
+    <!--<script async defer src="https://apis.google.com/js/api.js"
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
     <button id="signin-button" onclick="handleSignInClick()">Sign In</button>
-    <button id="signout-button" onclick="handleSignOutClick()">Sign Out</button>
+    <button id="signout-button" onclick="handleSignOutClick()">Sign Out</button>-->
     <div id="google-oauth-button" class="oauth-google">
         <div class="oauth-google-inner">
             <img src="/static/img/GGL_logo_googleg_18.png">
