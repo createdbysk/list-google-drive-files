@@ -4,3 +4,4 @@ flask
 httplib2
 twisted
 service_identity
+requests

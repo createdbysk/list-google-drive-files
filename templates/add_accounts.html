@@ -5,18 +5,18 @@
       integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
       crossorigin="anonymous">
     </script>
-    <script src="/static/auth.js"></script>
-    <script src="/static/add_accounts.js"></script>
-    <script>
-        function getGoogleLogoutUrl() {
-            return "{{ url_for('logout') }}";
-        };
-    </script>
-    <div>
-        <p>{{user.name}} ({{user.email_address}})</p>
-        <button id="logout-button" onclick="logout()">Logout</button>
-    </div>
-    <script src="/static/add_accounts.js"></script>
-    <button id="add-account-button" onclick="addAccount()">Add Account</button>
+    <p>
+    {% if session.profile %}
+        <a href="{{ url_for('logout') }}">
+         {% if session.profile.image %}
+           <img class="img-circle" src="{{session.profile.image}}" width="24">
+         {% endif %}
+         Logout {{session.profile.name}}
+        </a>
+    {% endif %}
+    </p>
+    <p>
+        <a>Add Account</a>
+    </p>
   </body>
 </html>
