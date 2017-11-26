@@ -2,6 +2,7 @@ import flask
 
 class Session(object):
     __SESSIONS = {}
+    __CSRF_KEY = "google_auth_csrf_token"
     def __init__(self, credentials):
         self.credentials = credentials
 
@@ -31,3 +32,18 @@ class Session(object):
         else:
             return None
 
+    @classmethod
+    def generate_csrf_token(cls):
+        import hashlib
+        import os
+        csrf_token = hashlib.sha256(os.urandom(1024)).hexdigest()
+        flask.session[cls.__CSRF_KEY] = csrf_token
+        return csrf_token
+
+    @classmethod
+    def is_csrf_token_valid(cls, csrf_token):
+        if cls.__CSRF_KEY in flask.session:
+            stored_csrf_token = flask.session[cls.__CSRF_KEY]
+            return stored_csrf_token == csrf_token
+
+        return False

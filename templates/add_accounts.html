@@ -9,14 +9,13 @@
     <script src="/static/add_accounts.js"></script>
     <script>
         function getGoogleLogoutUrl() {
-            return "{{ url_for('logout') }}";
+            return ;
         };
     </script>
     <div>
-        <p>{{user.name}} ({{user.email_address}})</p>
-        <button id="logout-button" onclick="logout()">Logout</button>
+        <p>{{user.name}} ({{user.email}})</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
     </div>
-    <script src="/static/add_accounts.js"></script>
-    <button id="add-account-button" onclick="addAccount()">Add Account</button>
+    <a href="{{ url_for('add_account') }}">Add Account</a>
   </body>
 </html>
