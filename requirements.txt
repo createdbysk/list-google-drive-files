@@ -1,2 +1,6 @@
 google-api-python-client
 pyOpenSSL
+flask
+httplib2
+twisted
+service_identity

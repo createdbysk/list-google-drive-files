@@ -1,0 +1,32 @@
+.oauth-google {
+    max-width: 318px;
+    height: 40px;
+    border-radius: 7px;
+    border: solid 1px #d0d0d0;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.oauth-google-inner {
+    height: inherit;
+    position: relative;
+}
+
+.oauth-google-text {
+    margin-left: 50px;
+    max-width: 280px;
+    font-size: 16px;
+    font-family: gotham, helvetica, arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    color: #6a6a6a;
+    display: inline-block;
+    position: relative;
+    margin-top: 6%;
+    transform: translateY(-50%);
+    text-align: center;
+}
+

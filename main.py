@@ -7,20 +7,20 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/drive-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
 CLIENT_SECRET_FILE = '.credentials/client_secret.json'
 APPLICATION_NAME = 'Find Duplicates'
 PAGE_SIZE = 1000
-FIELDS = "nextPageToken, files(name, quotaBytesUsed)"
+FIELDS = "nextPageToken, files(name, id, quotaBytesUsed)"
 ORDER_BY = "quotaBytesUsed desc"
+
+flags = None
+
+import object_store
+
+object_store_instance = object_store.ObjectStore.create()
 
 def get_credentials(suffix):
     """Gets valid user credentials from storage.
@@ -46,7 +46,7 @@ def get_credentials(suffix):
         if flags:
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
+            credentials = tools.run_flow(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
 
@@ -94,8 +94,7 @@ def get_total_quota_bytes_used(suffix):
                 fields=FIELDS).execute()
 
 
-def get_item_list(suffix):
-    credentials = get_credentials(suffix)
+def get_item_list(credentials):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v3', http=http)
     item_list = []
@@ -136,11 +135,36 @@ def find_duplicates(object_store_instance):
     return duplicates
 
 
-def add_items_to_object_store(object_store_instance, suffix):
-    item_list = get_item_list(suffix)
+def get_item_permissions(object_list):
+    services = {}
+    # Make a copy of the parameter
+    items = object_list[:]
+    for item in items:
+        credentials = item[0]
+        if credentials not in services:
+            http = credentials.authorize(httplib2.Http())
+            service = discovery.build('drive', 'v3', http=http)
+            services[credentials] = service
+        else:
+            service = services[credentials]
+        item_details = item[1]
+        id = item_details['id']
+        permissions = service.permissions().list(fileId=id).execute()
+        item_details['permissions'] = []
+        for permission in permissions['permissions']:
+            details = service.permissions().get(fileId=id,
+                                                permissionId=permission['id'],
+                                                fields='id, type, emailAddress').execute()
+            item_details['permissions'].append(details)
+
+    return items
+
+
+def add_items_to_object_store(object_store_instance, credentials):
+    item_list = get_item_list(credentials)
     for item in item_list:
         name = item['name']
-        object_store_instance.add_object(name, item, suffix)
+        object_store_instance.add_object(name, item, credentials)
 
     return object_store_instance
 
@@ -175,15 +199,29 @@ def main():
     Locates an object in the given google drive accounts
     """
     import json
-    import object_store
-    object_store_instance = object_store.ObjectStore.create()
-    add_items_to_object_store(object_store_instance, 1)
-    add_items_to_object_store(object_store_instance, 2)
+    credentials_1 = get_credentials(1)
+    credentials_2 = get_credentials(2)
+    add_to_object_store(credentials_1)
+    add_to_object_store(credentials_2)
 
     duplicates = find_duplicates(object_store_instance)
     print(json.dumps(duplicates, indent=4))
     print(json.dumps(possible_wasted_quota_bytes_used(duplicates), indent=4))
 
+    file_duplicates = duplicates['2014.1']
+    print(json.dumps(get_item_permissions(file_duplicates), indent=4))
+
+
+def add_to_object_store(credentials):
+    add_items_to_object_store(object_store_instance, credentials)
+
 
 if __name__ == '__main__':
+    try:
+        import argparse
+
+        flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+    except ImportError:
+        flags = None
+
     main()

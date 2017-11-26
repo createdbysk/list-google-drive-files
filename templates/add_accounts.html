@@ -1,0 +1,21 @@
+<html lang="en">
+  <body>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+      crossorigin="anonymous">
+    </script>
+    <script src="/static/auth.js"></script>
+    <script src="/static/add_accounts.js"></script>
+    <script>
+        function getGoogleLogoutUrl() {
+            return ;
+        };
+    </script>
+    <div>
+        <p>{{user.name}} ({{user.email}})</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <a href="{{ url_for('add_account') }}">Add Account</a>
+  </body>
+</html>
