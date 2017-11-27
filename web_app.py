@@ -24,6 +24,7 @@ account_oauth = google_oauth.GoogleOauth(app, ".credentials/client_secret.json",
                                  "account"
                                  )
 
+
 # a route where we will display a welcome message via an HTML template
 @app.route("/")
 def index():
@@ -33,10 +34,12 @@ def index():
         session.Session.start_login_flow()
         return flask.redirect(flask.url_for("login"))
 
+
 @app.route("/login")
 def login():
     return flask.render_template('login.html',
                                  login_authorize_url=login_oauth.authorize_url(flask.url_for("index")))
+
 
 @app.route("/logout")
 def logout():
