@@ -18,7 +18,7 @@
     </div>
     {% for account in accounts %}
     <div>
-        <p>{{account.name}} ({{account.email}})</p>
+        <p>{{account.id}} ({{account.email}})</p>
     </div>
     {% endfor %}
     <a href="{{ url_for('add_account') }}">Add Account</a>

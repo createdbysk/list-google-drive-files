@@ -73,7 +73,6 @@ class GoogleOauth(object):
             if session.Session.is_csrf_token_valid(csrf_token):
                 flow = self.__get_flow()
                 credentials = flow.step2_exchange(code)
-                session.Session.store_credentials(credentials)
                 if self.__authorize_callback:
                     self.__authorize_callback(credentials)
             return flask.redirect(return_url)
