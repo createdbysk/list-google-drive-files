@@ -2,17 +2,13 @@ import flask
 import httplib2
 from apiclient import discovery
 import session
-import flow_factory
 import google_oauth
+import uuid
 
 # creates a Flask application, named app
 app = flask.Flask(__name__)
 
-app.config['SECRET_KEY'] = '818d825f-f329-4b61-878a-7c5f138ba6a7'
-app.config['GOOGLE_OAUTH2_CLIENT_ID'] = '816614257662-18mpfl219ag6f5de0v454ccpd8af9hr8.apps.googleusercontent.com'
-app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = 'jxVpIi84T4LZCJLtBnP_MaVN'
-app.config['GOOGLE_OAUTH2_SCOPES'] = ['profile', 'email']
-
+app.config['SECRET_KEY'] = str(uuid.uuid4())
 
 login_oauth = google_oauth.GoogleOauth(app, ".credentials/client_secret.json",
                                  ['profile', 'email'],
